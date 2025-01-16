@@ -18,7 +18,7 @@ public class LibroEntity {
     @JoinColumn(name = "autor_id")
     private AutorEntity autor;
 
-    public LibroEntity() {
+    public LibroEntity(LibroEntity libroEntity) {
     }
 
     public LibroEntity(String titulo, String lenguaje, int descargas, AutorEntity autor) {

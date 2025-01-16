@@ -8,11 +8,5 @@ import java.util.List;
 
 @Repository
 public interface LibroRepository extends JpaRepository<LibroEntity, Long> {
-
-    // Por si quisieras buscar libros por título (contenga algo)
-    List<LibroEntity> findByTituloContainingIgnoreCase(String titulo);
-
-    // Por si quisieras buscar libros por lenguaje
-    List<LibroEntity> findByLenguajeIgnoreCase(String lenguaje);
-
+    List<LibroEntity> findForLanguage(String language);
 }
