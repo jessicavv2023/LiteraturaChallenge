@@ -38,6 +38,7 @@ public class ClienteLiteratura {
                         4.- Lista autores vivos en un determinado año
                         5.- Listar libros por idioma
                         0 - Salir
+                        otra opcion 
                         """;
             System.out.println(menu);
             opcion = teclado.nextInt();
