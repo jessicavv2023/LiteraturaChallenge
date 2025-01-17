@@ -212,9 +212,8 @@ class ClienteLiteratura {
 	}
 
 	private void buscarLibroWeb() {
-		Respuesta datos = getDatosSerie();  // Obtenemos el JSON parseado
+		Respuesta datos = getDatosSerie();
 
-		// Validaciones
 		if (datos == null) {
 			System.out.println("Error: no se obtuvo nada de la API");
 			return;
@@ -224,22 +223,25 @@ class ClienteLiteratura {
 			return;
 		}
 
-		// Toma el primer resultado
 		var primerResultado = datos.getResults().get(0);
 
-		// Crea un LibroEntity (asumiendo que tu constructor mapea los campos)
+		// Creamos el libro (esto internamente crea un AutorEntity si hay un autor)
 		LibroEntity libro = new LibroEntity(primerResultado);
 
-		// Guarda en el repositorio
+		// Guarda el libro en el repositorio en memoria
 		libro = libroRepositorio.save(libro);
 
-		// Mensaje de confirmación (muestra ID y Título)
+		// *** Nuevo paso ***: guardar también al autor en autorRepositorio
+		if (libro.getAutor() != null) {
+			autorRepositorio.save(libro.getAutor());
+		}
+
 		System.out.println("Libro guardado con ID: " + libro.getId() +
 				" y título: " + libro.getTitulo());
 
-		// (Opcional) Imprime la respuesta completa
 		System.out.println("Datos obtenidos:\n" + datos);
 	}
+
 
 
 	private Respuesta getDatosSerie() {
