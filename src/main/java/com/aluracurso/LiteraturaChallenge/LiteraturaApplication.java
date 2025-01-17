@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
 
@@ -75,17 +76,23 @@ class ClienteLiteratura {
 		var opcion = -1;
 		while (opcion != 0) {
 			var menu = """
-                    \n
-                    Elija la opción a través de su número:
-                        1.- Buscar libro por título (API)
-                        2.- Lista libros registrados
-                        3.- Lista autores registrados
-                        4.- Lista autores vivos en un determinado año
-                        5.- Listar libros por idioma
-                        0 - Salir
-                    """;
+                Elija la opción a través de su número:
+                    1.- Buscar libro por título (API)
+                    2.- Lista libros registrados
+                    3.- Lista autores registrados
+                    4.- Lista autores vivos en un determinado año
+                    5.- Listar libros por idioma
+                    0 - Salir
+                """;
 			System.out.println(menu);
-			opcion = teclado.nextInt();
+
+			try {
+				opcion = teclado.nextInt();  // <- si no es un número, salta InputMismatchException
+			} catch (InputMismatchException e) {
+				System.out.println("Por favor, ingresa un número válido.");
+				teclado.nextLine(); // Limpia la entrada que causó el error
+				continue;           // Vuelve al while para pedirlo de nuevo
+			}
 			teclado.nextLine(); // limpiar buffer
 
 			switch (opcion) {
@@ -100,13 +107,14 @@ class ClienteLiteratura {
 		}
 	}
 
+
 	private void buscarLibros() {
 		List<LibroEntity> libros = libroRepositorio.findAll();
 
 		if (!libros.isEmpty()) {
 			System.out.println("\n\n---------- LIBROS -------");
 			for (LibroEntity libro : libros) {
-				System.out.println("Título: " + libro.getTitulo());
+				System.out.println("Título: " + libro.getTitulo().replace(" ", "+"));
 				System.out.println("Autor: " + libro.getAutor().getNombre());
 				System.out.println("Idioma: " + libro.getLenguaje());
 				System.out.println("Descargas: " + libro.getDescargas());
@@ -168,7 +176,7 @@ class ClienteLiteratura {
 	private void buscarPorIdiomas() {
 		var menu = """
                 \n
-                Seleccione un idioma:
+                Seleccione un idioma, escribe 1 o 2 :
                     1.- Español
                     2.- Inglés
                 """;
@@ -181,6 +189,8 @@ class ClienteLiteratura {
 			seleccion = "es";
 		} else if (idioma == 2) {
 			seleccion = "en";
+		}else{
+			System.out.println("Escribe una opción valida");
 		}
 
 		List<LibroEntity> libros = libroRepositorio.findForLanguage(seleccion);
@@ -225,7 +235,7 @@ class ClienteLiteratura {
 		var titulo = teclado.nextLine();
 		titulo = titulo.replace(" ", "%20");
 
-		System.out.println("Título (param URL): " + titulo);
+		System.out.println("Título (param URL): " + titulo.replace("%20", " "));
 		String urlBusqueda = URL_BASE + titulo;
 		System.out.println("URL final: " + urlBusqueda);
 
