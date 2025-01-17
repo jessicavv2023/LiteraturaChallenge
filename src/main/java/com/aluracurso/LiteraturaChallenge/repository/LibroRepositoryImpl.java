@@ -37,18 +37,16 @@ public class LibroRepositoryImpl implements LibroRepository {
 
     @Override
     public LibroEntity save(LibroEntity libro) {
+        // Si no tiene ID, se lo asignamos
         if (libro.getId() == null) {
             libro.setId(SEQUENCE++);
-            data.add(libro);
-        } else {
-            // Update no implementado en este ejemplo
         }
+        // Agregamos el libro a la lista en memoria
+        data.add(libro);
 
-        // Guardar/actualizar su autor
-        if (libro.getAutor() != null) {
-            // En un caso real, deberíamos persistir o actualizar
-            // el autor en AutorRepository. Aquí simplificado.
-        }
+        // (O si quisieras un "update" cuando ID no es null,
+        // tendrías que buscar y reemplazar en 'data'.
+        // Para este ejemplo, nos basta con "añadir".)
 
         return libro;
     }

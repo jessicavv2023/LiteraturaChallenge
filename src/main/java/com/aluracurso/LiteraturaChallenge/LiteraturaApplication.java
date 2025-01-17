@@ -108,13 +108,15 @@ class ClienteLiteratura {
 	}
 
 
+
 	private void buscarLibros() {
 		List<LibroEntity> libros = libroRepositorio.findAll();
 
 		if (!libros.isEmpty()) {
 			System.out.println("\n\n---------- LIBROS -------");
 			for (LibroEntity libro : libros) {
-				System.out.println("Título: " + libro.getTitulo().replace(" ", "+"));
+				System.out.println("ID: " + libro.getId());
+				System.out.println("Título: " + libro.getTitulo());
 				System.out.println("Autor: " + libro.getAutor().getNombre());
 				System.out.println("Idioma: " + libro.getLenguaje());
 				System.out.println("Descargas: " + libro.getDescargas());
@@ -210,22 +212,32 @@ class ClienteLiteratura {
 	}
 
 	private void buscarLibroWeb() {
-		Respuesta datos = getDatosSerie();  // <-- aquí obtienes el JSON parseado
+		Respuesta datos = getDatosSerie();  // Obtenemos el JSON parseado
 
-		// Agrega inmediatamente tus validaciones:
+		// Validaciones
 		if (datos == null) {
 			System.out.println("Error: no se obtuvo nada de la API");
-			return; // Salimos del método
+			return;
 		}
 		if (datos.getResults() == null || datos.getResults().isEmpty()) {
 			System.out.println("No hay resultados en la API para esa búsqueda");
-			return; // Salimos del método
+			return;
 		}
 
-		// Aquí ya estás seguro de que results() no es null ni está vacío
+		// Toma el primer resultado
 		var primerResultado = datos.getResults().get(0);
-		// ... Continúa con tu lógica (guardar el libro, etc.)
 
+		// Crea un LibroEntity (asumiendo que tu constructor mapea los campos)
+		LibroEntity libro = new LibroEntity(primerResultado);
+
+		// Guarda en el repositorio
+		libro = libroRepositorio.save(libro);
+
+		// Mensaje de confirmación (muestra ID y Título)
+		System.out.println("Libro guardado con ID: " + libro.getId() +
+				" y título: " + libro.getTitulo());
+
+		// (Opcional) Imprime la respuesta completa
 		System.out.println("Datos obtenidos:\n" + datos);
 	}
 
