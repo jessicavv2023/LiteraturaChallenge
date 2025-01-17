@@ -1,56 +1,40 @@
 package com.aluracurso.LiteraturaChallenge.model;
 
-import jakarta.persistence.*;
+import com.aluracurso.LiteraturaChallenge.model.LibroEntity;
 
-@Entity
-@Table(name = "autores")
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * ------------------------------------------------------
+ * ENTIDAD AutorEntity (POJO en memoria)
+ * ------------------------------------------------------
+ */
 public class AutorEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nombre;
+    private LocalDate fechaNacimiento;
+    private LocalDate fechaFallecimiento;
+    private List<LibroEntity> libros = new ArrayList<>();
 
-    private Integer anioNacimiento;
-    private Integer anioFallecimiento;
-
-    // Constructores
     public AutorEntity() {
     }
 
-    public AutorEntity(String nombre, Integer anioNacimiento, Integer anioFallecimiento) {
-        this.nombre = nombre;
-        this.anioNacimiento = anioNacimiento;
-        this.anioFallecimiento = anioFallecimiento;
-    }
-
     // Getters y setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public Integer getAnioNacimiento() {
-        return anioNacimiento;
-    }
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
 
-    public Integer getAnioFallecimiento() {
-        return anioFallecimiento;
-    }
+    public LocalDate getFechaFallecimiento() { return fechaFallecimiento; }
+    public void setFechaFallecimiento(LocalDate fechaFallecimiento) { this.fechaFallecimiento = fechaFallecimiento; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public void setAnioNacimiento(Integer anioNacimiento) {
-        this.anioNacimiento = anioNacimiento;
-    }
-
-    public void setAnioFallecimiento(Integer anioFallecimiento) {
-        this.anioFallecimiento = anioFallecimiento;
-    }
+    public List<LibroEntity> getLibros() { return libros; }
+    public void setLibros(List<LibroEntity> libros) { this.libros = libros; }
 }

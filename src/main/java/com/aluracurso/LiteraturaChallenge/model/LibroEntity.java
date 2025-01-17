@@ -1,67 +1,68 @@
 package com.aluracurso.LiteraturaChallenge.model;
 
-import jakarta.persistence.*;
 
-@Entity
-@Table(name = "libros")
+
+import com.aluracurso.LiteraturaChallenge.dto.AutorGuten;
+
+
+import java.time.LocalDate;
+
+/**
+ * ------------------------------------------------------
+ * ENTIDAD LibroEntity (POJO en memoria)
+ * ------------------------------------------------------
+ */
 public class LibroEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String titulo;
     private String lenguaje;
     private int descargas;
-
-    @ManyToOne
-    @JoinColumn(name = "autor_id")
     private AutorEntity autor;
 
-    public LibroEntity(LibroEntity libroEntity) {
+    public LibroEntity() {
     }
 
-    public LibroEntity(String titulo, String lenguaje, int descargas, AutorEntity autor) {
-        this.titulo = titulo;
-        this.lenguaje = lenguaje;
-        this.descargas = descargas;
-        this.autor = autor;
+    /**
+     * Constructor que mapea un Resultado (de la API) a nuestra entidad
+     */
+    public LibroEntity(Resultado resultado) {
+        this.titulo = resultado.title();
+        if (resultado.languages() != null && !resultado.languages().isEmpty()) {
+            this.lenguaje = resultado.languages().get(0);
+        }
+        this.descargas = resultado.download_count();
+
+        // Tomamos el primer autor, si existe
+        if (resultado.authors() != null && !resultado.authors().isEmpty()) {
+            AutorGuten autorGuten = resultado.authors().get(0);
+            AutorEntity autorEntity = new AutorEntity();
+            autorEntity.setNombre(autorGuten.name());
+
+            if (autorGuten.birth_year() != null) {
+                autorEntity.setFechaNacimiento(LocalDate.of(autorGuten.birth_year(), 1, 1));
+            }
+            if (autorGuten.death_year() != null) {
+                autorEntity.setFechaFallecimiento(LocalDate.of(autorGuten.death_year(), 1, 1));
+            }
+            // Vinculamos ambos
+            this.autor = autorEntity;
+            autorEntity.getLibros().add(this);
+        }
     }
 
-    // Getters y setters
-    public Long getId() {
-        return id;
-    }
+    // Getters & Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getTitulo() {
-        return titulo;
-    }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public String getLenguaje() {
-        return lenguaje;
-    }
+    public String getLenguaje() { return lenguaje; }
+    public void setLenguaje(String lenguaje) { this.lenguaje = lenguaje; }
 
-    public int getDescargas() {
-        return descargas;
-    }
+    public int getDescargas() { return descargas; }
+    public void setDescargas(int descargas) { this.descargas = descargas; }
 
-    public AutorEntity getAutor() {
-        return autor;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public void setLenguaje(String lenguaje) {
-        this.lenguaje = lenguaje;
-    }
-
-    public void setDescargas(int descargas) {
-        this.descargas = descargas;
-    }
-
-    public void setAutor(AutorEntity autor) {
-        this.autor = autor;
-    }
+    public AutorEntity getAutor() { return autor; }
+    public void setAutor(AutorEntity autor) { this.autor = autor; }
 }

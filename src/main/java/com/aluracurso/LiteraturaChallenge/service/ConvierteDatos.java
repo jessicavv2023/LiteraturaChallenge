@@ -1,21 +1,25 @@
 package com.aluracurso.LiteraturaChallenge.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.stereotype.Service;
 
-public class ConvierteDatos implements IConvertirDatos {
+/**
+ * ------------------------------------------------------
+ * CLASE ConvierteDatos
+ * Encargada de parsear JSON a objetos
+ * ------------------------------------------------------
+ */
+@Service
+public class ConvierteDatos {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-    @Override
-    public <T> T obtnerDatos(String json, Class<T> clase) {
+    public <T> T obtnerDatos(String json, Class<T> type) {
         try {
-            return mapper.readValue(json, clase);
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            return mapper.readValue(json, type);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

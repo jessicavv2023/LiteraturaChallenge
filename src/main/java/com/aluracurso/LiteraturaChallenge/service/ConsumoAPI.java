@@ -1,26 +1,36 @@
-package com.aluracurso.LibrariGutendex.service;
+package com.aluracurso.LiteraturaChallenge.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+
+/**
+ * ------------------------------------------------------
+ * CLASE ConsumoAPI
+ * Encargada de hacer la petición HTTP a la API
+ * ------------------------------------------------------
+ */
+@Service
 public class ConsumoAPI {
 
-    public String obtenerDatos(String url) {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-        HttpResponse<String> response;
+    public String obtenerDatos(String urlString) {
         try {
-            response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            URL url = new URL(urlString);
+            URLConnection conn = url.openConnection();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                return sb.toString();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
         }
-        return response.body();
     }
 }

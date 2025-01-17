@@ -6,6 +6,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Datos(
-        List<DatosLibro> resultados
+        List<DatosLibro> results
 ) {
 }

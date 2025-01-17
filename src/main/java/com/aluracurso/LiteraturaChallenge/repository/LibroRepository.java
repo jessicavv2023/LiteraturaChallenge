@@ -1,12 +1,18 @@
 package com.aluracurso.LiteraturaChallenge.repository;
 
+
+
 import com.aluracurso.LiteraturaChallenge.model.LibroEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
-public interface LibroRepository extends JpaRepository<LibroEntity, Long> {
+/**
+ * ------------------------------------------------------
+ * REPOSITORIO LibroRepository (interfaz)
+ * ------------------------------------------------------
+ */
+public interface LibroRepository {
+    List<LibroEntity> findAll();
     List<LibroEntity> findForLanguage(String language);
+    LibroEntity save(LibroEntity libro);
 }

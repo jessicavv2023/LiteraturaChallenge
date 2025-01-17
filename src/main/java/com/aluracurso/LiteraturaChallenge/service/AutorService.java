@@ -28,8 +28,23 @@ public class AutorService {
      */
     public List<AutorEntity> autoresVivosEnAnio(int anio) {
         return autorRepository.findAll().stream()
-                .filter(autor -> autor.getAnioNacimiento() != null && autor.getAnioNacimiento() <= anio)
-                .filter(autor -> autor.getAnioFallecimiento() == null || autor.getAnioFallecimiento() > anio)
+                .filter(autor -> {
+                    // Verificar que la fecha de nacimiento no sea nula
+                    // y que el autor haya nacido en o antes de 'anio'
+                    if (autor.getFechaNacimiento() == null) return false;
+                    if (autor.getFechaNacimiento().getYear() > anio) return false;
+
+                    // Si la fecha de fallecimiento es nula => autor "sigue vivo"
+                    // según nuestro filtro. Si no es nula, entonces que sea
+                    // mayor al año buscado
+                    if (autor.getFechaFallecimiento() != null
+                            && autor.getFechaFallecimiento().getYear() <= anio) {
+                        return false;
+                    }
+
+                    return true;
+                })
                 .collect(Collectors.toList());
     }
+
 }
