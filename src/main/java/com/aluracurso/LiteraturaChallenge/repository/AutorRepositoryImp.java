@@ -34,12 +34,14 @@ public class AutorRepositoryImp implements AutorRepository {
                     ? autor.getFechaFallecimiento().getYear()
                     : Integer.MAX_VALUE;
 
+            // "Autor vivo" en 'year' => nacimiento <= year <= fallecimiento
             if (nacimiento <= year && year <= fallecimiento) {
                 vivos.add(autor);
             }
         }
         return vivos;
     }
+
 
     @Override
     public AutorEntity save(AutorEntity autor) {

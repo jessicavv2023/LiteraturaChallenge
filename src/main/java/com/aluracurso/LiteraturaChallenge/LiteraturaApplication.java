@@ -13,13 +13,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.util.InputMismatchException;
-import java.util.Scanner;
 import java.util.List;
+import java.util.Scanner;
 
 /**
- * ------------------------------------------------------
  * CLASE PRINCIPAL DE SPRING BOOT
- * ------------------------------------------------------
  */
 @SpringBootApplication
 public class LiteraturaApplication {
@@ -28,10 +26,6 @@ public class LiteraturaApplication {
 		SpringApplication.run(LiteraturaApplication.class, args);
 	}
 
-	/**
-	 * Con este CommandLineRunner, al arrancar la aplicación,
-	 * se invoca el método 'menu()' de ClienteLiteratura.
-	 */
 	@Bean
 	public CommandLineRunner correrMenu(ClienteLiteratura cliente) {
 		return args -> {
@@ -41,27 +35,20 @@ public class LiteraturaApplication {
 
 }
 
-/**
- * ------------------------------------------------------------------
- * CLASE ClienteLiteratura
- * (Se marca con @org.springframework.stereotype.Service o @Component)
- * ------------------------------------------------------------------
- */
 @org.springframework.stereotype.Service
 class ClienteLiteratura {
 
 	private final String URL_BASE = "https://gutendex.com/books/?search=";
-	private Scanner teclado = new Scanner(System.in);
+	private final Scanner teclado = new Scanner(System.in);
 
-	// Inyectamos nuestras clases de consumo/parseo de la API,
-	// que también están anotadas con @Service/@Component (ver más abajo).
+	// Inyectamos clases para consumir/parsear la API
 	private final ConsumoAPI consumoApi;
 	private final ConvierteDatos conversor;
 
+	// Repositorios en memoria
 	private final LibroRepository libroRepositorio;
 	private final AutorRepository autorRepositorio;
 
-	// Usamos constructor injection (recomendado en Spring)
 	public ClienteLiteratura(ConsumoAPI consumoApi,
 							 ConvierteDatos conversor,
 							 LibroRepository libroRepositorio,
@@ -87,11 +74,11 @@ class ClienteLiteratura {
 			System.out.println(menu);
 
 			try {
-				opcion = teclado.nextInt();  // <- si no es un número, salta InputMismatchException
+				opcion = teclado.nextInt();
 			} catch (InputMismatchException e) {
 				System.out.println("Por favor, ingresa un número válido.");
-				teclado.nextLine(); // Limpia la entrada que causó el error
-				continue;           // Vuelve al while para pedirlo de nuevo
+				teclado.nextLine(); // limpiar el input inválido
+				continue;
 			}
 			teclado.nextLine(); // limpiar buffer
 
@@ -107,113 +94,14 @@ class ClienteLiteratura {
 		}
 	}
 
-
-
-	private void buscarLibros() {
-		List<LibroEntity> libros = libroRepositorio.findAll();
-
-		if (!libros.isEmpty()) {
-			System.out.println("\n\n---------- LIBROS -------");
-			for (LibroEntity libro : libros) {
-				System.out.println("ID: " + libro.getId());
-				System.out.println("Título: " + libro.getTitulo());
-				System.out.println("Autor: " + libro.getAutor().getNombre());
-				System.out.println("Idioma: " + libro.getLenguaje());
-				System.out.println("Descargas: " + libro.getDescargas());
-				System.out.println("-------------------------");
-			}
-		} else {
-			System.out.println("\n\n----- NO SE ENCONTRARON RESULTADOS ----\n");
-		}
-	}
-
-	private void buscarAutores() {
-		List<AutorEntity> autores = autorRepositorio.findAll();
-
-		if (!autores.isEmpty()) {
-			System.out.println("\n\n---------- AUTORES -------");
-			for (AutorEntity autor : autores) {
-				System.out.println("Nombre: " + autor.getNombre());
-				System.out.println("Fecha de Nacimiento: " + autor.getFechaNacimiento());
-				System.out.println("Fecha de Fallecimiento: " + autor.getFechaFallecimiento());
-				System.out.println("Libros: ");
-				if (autor.getLibros() != null && !autor.getLibros().isEmpty()) {
-					autor.getLibros().forEach(libro -> System.out.println(" - " + libro.getTitulo()));
-				} else {
-					System.out.println(" - Sin libros asociados");
-				}
-				System.out.println("-------------------------");
-			}
-		} else {
-			System.out.println("\n\n----- NO SE ENCONTRARON RESULTADOS ----\n");
-		}
-	}
-
-	private void buscarAutoresVivos() {
-		System.out.println("Escriba el año para el que desea conocer los autores vivos: ");
-		var anio = teclado.nextInt();
-		teclado.nextLine();
-
-		List<AutorEntity> autores = autorRepositorio.findForYear(anio);
-
-		if (!autores.isEmpty()) {
-			System.out.println("\n\n---------- AUTORES VIVOS -------");
-			for (AutorEntity autor : autores) {
-				System.out.println("Nombre: " + autor.getNombre());
-				System.out.println("Fecha de Nacimiento: " + autor.getFechaNacimiento());
-				System.out.println("Fecha de Fallecimiento: " + autor.getFechaFallecimiento());
-				System.out.println("Libros: ");
-				if (autor.getLibros() != null && !autor.getLibros().isEmpty()) {
-					autor.getLibros().forEach(libro -> System.out.println(" - " + libro.getTitulo()));
-				} else {
-					System.out.println(" - Sin libros asociados");
-				}
-				System.out.println("-------------------------");
-			}
-		} else {
-			System.out.println("\n\n----- NO SE ENCONTRARON RESULTADOS ----\n");
-		}
-	}
-
-	private void buscarPorIdiomas() {
-		var menu = """
-                \n
-                Seleccione un idioma, escribe 1 o 2 :
-                    1.- Español
-                    2.- Inglés
-                """;
-		System.out.println(menu);
-		var idioma = teclado.nextInt();
-		teclado.nextLine();
-
-		String seleccion = "";
-		if (idioma == 1) {
-			seleccion = "es";
-		} else if (idioma == 2) {
-			seleccion = "en";
-		}else{
-			System.out.println("Escribe una opción valida");
-		}
-
-		List<LibroEntity> libros = libroRepositorio.findForLanguage(seleccion);
-
-		if (!libros.isEmpty()) {
-			System.out.println("\n\n---------- LIBROS POR IDIOMA -------");
-			for (LibroEntity libro : libros) {
-				System.out.println("Título: " + libro.getTitulo());
-				System.out.println("Autor: " + libro.getAutor().getNombre());
-				System.out.println("Idioma: " + libro.getLenguaje());
-				System.out.println("Descargas: " + libro.getDescargas());
-				System.out.println("-------------------------");
-			}
-		} else {
-			System.out.println("\n\n----- NO SE ENCONTRARON RESULTADOS ----\n");
-		}
-	}
+	// --------------------------------------------------------------------------------
+	// Opción 1: Buscar libro en la API y guardarlo
+	// --------------------------------------------------------------------------------
 
 	private void buscarLibroWeb() {
 		Respuesta datos = getDatosSerie();
 
+		// Validaciones previas
 		if (datos == null) {
 			System.out.println("Error: no se obtuvo nada de la API");
 			return;
@@ -223,27 +111,162 @@ class ClienteLiteratura {
 			return;
 		}
 
+		// Tomamos el primer resultado
 		var primerResultado = datos.getResults().get(0);
+		// Obtenemos el título que viene en el JSON
+		String tituloPropuesto = primerResultado.title();  // (o getTitle() si es clase)
 
-		// Creamos el libro (esto internamente crea un AutorEntity si hay un autor)
+		// 1) Revisar si YA existe un libro con este mismo título
+		//    en el repositorio de libros
+		List<LibroEntity> todosLosLibros = libroRepositorio.findAll();
+		for (LibroEntity libroExistente : todosLosLibros) {
+			// Si coincide (ignora mayúsculas/minúsculas):
+			if (libroExistente.getTitulo().equalsIgnoreCase(tituloPropuesto)) {
+				// Mensaje y salir sin registrar
+				System.out.println("El libro '" + tituloPropuesto + "' ya está registrado "
+						+ "con ID: " + libroExistente.getId());
+				return;
+			}
+		}
+
+		// 2) Si no está repetido, procedemos a crearlo
 		LibroEntity libro = new LibroEntity(primerResultado);
-
-		// Guarda el libro en el repositorio en memoria
+		// Guardar libro
 		libro = libroRepositorio.save(libro);
 
-		// *** Nuevo paso ***: guardar también al autor en autorRepositorio
+		// Guardar autor
 		if (libro.getAutor() != null) {
 			autorRepositorio.save(libro.getAutor());
 		}
 
 		System.out.println("Libro guardado con ID: " + libro.getId() +
 				" y título: " + libro.getTitulo());
-
-		System.out.println("Datos obtenidos:\n" + datos);
+		// (Opcional) System.out.println("Datos obtenidos:\n" + datos);
 	}
 
 
+	// --------------------------------------------------------------------------------
+	// Opción 2: Lista todos los libros en memoria
+	// --------------------------------------------------------------------------------
+	private void buscarLibros() {
+		List<LibroEntity> libros = libroRepositorio.findAll();
 
+		if (!libros.isEmpty()) {
+			System.out.println("\n---------- LIBROS -------");
+			for (LibroEntity libro : libros) {
+				System.out.println("ID: " + libro.getId());
+				System.out.println("Título: " + libro.getTitulo());
+				System.out.println("Autor: " + libro.getAutor().getNombre());
+				System.out.println("Idioma: " + libro.getLenguaje());
+				System.out.println("Descargas: " + libro.getDescargas());
+				System.out.println("-------------------------");
+			}
+		} else {
+			System.out.println("\n----- NO SE ENCONTRARON RESULTADOS ----\n");
+		}
+	}
+
+	// --------------------------------------------------------------------------------
+	// Opción 3: Lista todos los autores en memoria
+	// --------------------------------------------------------------------------------
+	private void buscarAutores() {
+		List<AutorEntity> autores = autorRepositorio.findAll();
+
+		if (!autores.isEmpty()) {
+			System.out.println("\n---------- AUTORES -------");
+			for (AutorEntity autor : autores) {
+				System.out.println("Nombre: " + autor.getNombre());
+				System.out.println("Fecha de Nacimiento: " + autor.getFechaNacimiento());
+				System.out.println("Fecha de Fallecimiento: " + autor.getFechaFallecimiento());
+				System.out.println("Libros: ");
+				if (autor.getLibros() != null && !autor.getLibros().isEmpty()) {
+					autor.getLibros().forEach(libro ->
+							System.out.println(" - " + libro.getTitulo())
+					);
+				} else {
+					System.out.println(" - Sin libros asociados");
+				}
+				System.out.println("-------------------------");
+			}
+		} else {
+			System.out.println("\n----- NO SE ENCONTRARON RESULTADOS ----\n");
+		}
+	}
+
+	// --------------------------------------------------------------------------------
+	// Opción 4: Lista autores vivos en el año dado
+	// --------------------------------------------------------------------------------
+	private void buscarAutoresVivos() {
+		System.out.println("Escriba el año para el que desea conocer los autores vivos: ");
+		var anio = teclado.nextInt();
+		teclado.nextLine();
+
+		// Se hace un .findForYear(anio) en autorRepositorio
+		List<AutorEntity> autores = autorRepositorio.findForYear(anio);
+
+		if (!autores.isEmpty()) {
+			System.out.println("\n---------- AUTORES VIVOS -------");
+			for (AutorEntity autor : autores) {
+				System.out.println("Nombre: " + autor.getNombre());
+				System.out.println("Fecha de Nacimiento: " + autor.getFechaNacimiento());
+				System.out.println("Fecha de Fallecimiento: " + autor.getFechaFallecimiento());
+				System.out.println("Libros: ");
+				if (autor.getLibros() != null && !autor.getLibros().isEmpty()) {
+					autor.getLibros().forEach(libro ->
+							System.out.println(" - " + libro.getTitulo())
+					);
+				} else {
+					System.out.println(" - Sin libros asociados");
+				}
+				System.out.println("-------------------------");
+			}
+		} else {
+			System.out.println("\n----- NO SE ENCONTRARON RESULTADOS ----\n");
+		}
+	}
+
+	// --------------------------------------------------------------------------------
+	// Opción 5: Lista libros por idioma
+	// --------------------------------------------------------------------------------
+	private void buscarPorIdiomas() {
+		var menu = """
+            
+            Seleccione un idioma, escribe 1 o 2 :
+                1.- Español
+                2.- Inglés
+            """;
+		System.out.println(menu);
+		var idioma = teclado.nextInt();
+		teclado.nextLine();
+
+		String seleccion = "";
+		if (idioma == 1) {
+			seleccion = "es";
+		} else if (idioma == 2) {
+			seleccion = "en";
+		} else {
+			System.out.println("Escribe una opción válida");
+		}
+
+		List<LibroEntity> libros = libroRepositorio.findForLanguage(seleccion);
+
+		if (!libros.isEmpty()) {
+			System.out.println("\n---------- LIBROS POR IDIOMA -------");
+			for (LibroEntity libro : libros) {
+				System.out.println("Título: " + libro.getTitulo());
+				System.out.println("Autor: " + libro.getAutor().getNombre());
+				System.out.println("Idioma: " + libro.getLenguaje());
+				System.out.println("Descargas: " + libro.getDescargas());
+				System.out.println("-------------------------");
+			}
+		} else {
+			System.out.println("\n----- NO SE ENCONTRARON RESULTADOS ----\n");
+		}
+	}
+
+	// --------------------------------------------------------------------------------
+	// Método auxiliar para consumir la API
+	// --------------------------------------------------------------------------------
 	private Respuesta getDatosSerie() {
 		System.out.println("Ingresa el nombre del libro que deseas buscar: ");
 		var titulo = teclado.nextLine();
@@ -253,10 +276,10 @@ class ClienteLiteratura {
 		String urlBusqueda = URL_BASE + titulo;
 		System.out.println("URL final: " + urlBusqueda);
 
-		// Obtenemos el JSON desde la API
+		// Obtener el JSON desde la API
 		var json = consumoApi.obtenerDatos(urlBusqueda);
 
-		// Convertimos el JSON a objeto Respuesta
+		// Convertir JSON a objeto Respuesta
 		return conversor.obtnerDatos(json, Respuesta.class);
 	}
 }
